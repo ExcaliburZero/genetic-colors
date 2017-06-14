@@ -1,10 +1,10 @@
-from random import randint
+from random import gauss, randint
 
 import numpy as np
 
 GOAL = (52, 152, 219)
-MUTATION_CHANCE = 100
-MUTATION_RANGE = 15
+MUTATION_CHANCE = 20
+MUTATION_DEVIATION = 5
 REPLACE_RATE = 1.1
 
 def score_chromosome(self):
@@ -22,17 +22,33 @@ def mate_chromosome(self, other):
     child = np.array([c_red, c_green, c_blue])
 
     if randint(0, MUTATION_CHANCE) == 0:
-        r_change = randint(-MUTATION_RANGE, MUTATION_RANGE)
-        g_change = randint(-MUTATION_RANGE, MUTATION_RANGE)
-        b_change = randint(-MUTATION_RANGE, MUTATION_RANGE)
-        mutate_chromosome(child, r_change, g_change, b_change)
+        changes = [0, 0, 0]
+
+        color_to_change = randint(0, 2)
+        change = random_change()
+
+        changes[color_to_change] = change
+
+        mutate_chromosome(child, changes)
 
     return child
 
-def mutate_chromosome(self, r_change, g_change, b_change):
-    self[0] = self[0] + r_change
-    self[1] = self[1] + g_change
-    self[2] = self[2] + b_change
+def random_change():
+    change = gauss(0, MUTATION_DEVIATION)
+    return change
+
+def bound(value, lower_lim, upper_lim):
+    if value > upper_lim:
+        return upper_lim
+    elif value < lower_lim:
+        return lower_lim
+    else:
+        return value
+
+def mutate_chromosome(self, changes):
+    self[0] = bound(self[0] + changes[0], 0, 255)
+    self[1] = bound(self[1] + changes[1], 0, 255)
+    self[2] = bound(self[2] + changes[2], 0, 255)
 
 def create_population(num):
     return np.array([create_individual() for x in range(num)])
